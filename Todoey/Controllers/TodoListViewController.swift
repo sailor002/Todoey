@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class TodoListViewController: UITableViewController {
     
@@ -18,40 +18,25 @@ class TodoListViewController: UITableViewController {
     var selectedCategory : Category?{
         didSet{
             
-            print("Category Name: \(selectedCategory!.name!)")
-            
-            let request : NSFetchRequest<Item> = Item.fetchRequest()
-            
-            let predicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
-            
-            request.predicate = predicate
-            
-            loadItems_Core(with: request)
+//            print("Category Name: \(selectedCategory!.name!)")
+//
+//            let request : NSFetchRequest<Item> = Item.fetchRequest()
+//
+//            let predicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+//
+//            request.predicate = predicate
+//
+//            loadItems_Core(with: request)
         }
     }
-    
-    //File Path For Encoder
-//    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     //Context for Core Data
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-    //DEFAULTS DECLARATION:
-//    let defaults = UserDefaults.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
-//        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        
-        //DEFAULTS READ:
-//        if let items = defaults.array(forKey: "TodoListArray") as? [Item]{
-//            itemArray = items
-//        }
-        
-        //ENCODER USE:
-//      loadItems_Encoder()
         
     
         
@@ -82,7 +67,7 @@ class TodoListViewController: UITableViewController {
 
         //CORE UPDATE:
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-        saveItems_Core()
+//        saveItems_Core()
         
         //CORE DELETE (Sequence is IMPORTANT!):
 //        context.delete(itemArray[indexPath.row])
@@ -104,24 +89,15 @@ class TodoListViewController: UITableViewController {
         
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             
-            //ENCODER USE:
-//            let newItem = Item_Coder() //-> Codable Object
+            
+            
+//            //CORE USE:
+//            let newItem = Item(context: self.context)//-> Database Object
 //            newItem.title = textFld.text!
+//            newItem.done = false
+//            newItem.parentCategory = self.selectedCategory
 //            self.itemArray.append(newItem)
-//            self.saveItems_Encoder()
-            
-            
-            //DEFAULTS WRITE:
-//          self.defaults.set(self.itemArray, forKey: "TodoListArray")
-            
-            
-            //CORE USE:
-            let newItem = Item(context: self.context)//-> Database Object
-            newItem.title = textFld.text!
-            newItem.done = false
-            newItem.parentCategory = self.selectedCategory
-            self.itemArray.append(newItem)
-            self.saveItems_Core()
+//            self.saveItems_Core()
             
             
         }
@@ -135,59 +111,29 @@ class TodoListViewController: UITableViewController {
         
         present(alert, animated: true, completion: nil)
     }
+       
     
-    //ENCODER WRITE:
-//    func saveItems_Encoder(){
-//
-//        let encoder = PropertyListEncoder()
+//    //CORE SAVE
+//    func saveItems_Core(){
 //        do{
-//
-//            let data = try encoder.encode(self.itemArray)
-//            try data.write(to: self.dataFilePath!)
+//            try context.save()
 //        }catch{
-//            print("Error encoidng data: \(error)")
+//            print("Error saving with Core Data: \(error)")
 //        }
 //
 //        self.tableView.reloadData()
 //    }
-    
-    //ENCODER READ:
-//    func loadItems_Encoder(){
 //
-//        if let data = try? Data(contentsOf: dataFilePath!){
+//    //CORE LOAD
+//    func loadItems_Core(with request : NSFetchRequest<Item> = Item.fetchRequest()){
 //
-//            let decoder = PropertyListDecoder()
-//
-//            do{
-//                itemArray = try decoder.decode([Item_Coder].self, from: data)
-//            }catch{
-//                print("Error decoding: \(error)")
-//            }
-//
+//        do{
+//            itemArray = try context.fetch(request)
+//        }catch{
+//            print("Error loading Items with Core Data: \(error)")
 //        }
+//        self.tableView.reloadData()
 //    }
-    
-    //CORE SAVE
-    func saveItems_Core(){
-        do{
-            try context.save()
-        }catch{
-            print("Error saving with Core Data: \(error)")
-        }
-        
-        self.tableView.reloadData()
-    }
-    
-    //CORE LOAD
-    func loadItems_Core(with request : NSFetchRequest<Item> = Item.fetchRequest()){
-        
-        do{
-            itemArray = try context.fetch(request)
-        }catch{
-            print("Error loading Items with Core Data: \(error)")
-        }
-        self.tableView.reloadData()
-    }
     
     
 
@@ -202,27 +148,27 @@ extension TodoListViewController : UISearchBarDelegate{
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
-        //Search and category based request
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
-        let searchPredicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
-        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [searchPredicate, categoryPredicate])
-        request.predicate = compoundPredicate
-        
-        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
-        request.sortDescriptors = [sortDescriptor]        
-        
-        //Check If Textfield is empty
-        if searchBar.text?.count == 0{
-            request.predicate = categoryPredicate
-            loadItems_Core(with: request)
-            DispatchQueue.main.async {
-                searchBar.resignFirstResponder()
-            }
-           
-        }else{
-            loadItems_Core(with: request)
-        }
+//        //Search and category based request
+//        let request : NSFetchRequest<Item> = Item.fetchRequest()
+//        let searchPredicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+//        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+//        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [searchPredicate, categoryPredicate])
+//        request.predicate = compoundPredicate
+//
+//        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
+//        request.sortDescriptors = [sortDescriptor]
+//
+//        //Check If Textfield is empty
+//        if searchBar.text?.count == 0{
+//            request.predicate = categoryPredicate
+//            loadItems_Core(with: request)
+//            DispatchQueue.main.async {
+//                searchBar.resignFirstResponder()
+//            }
+//
+//        }else{
+//            loadItems_Core(with: request)
+//        }
     }
     
 }

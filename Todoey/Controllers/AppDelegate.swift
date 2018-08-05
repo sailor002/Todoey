@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import RealmSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -21,6 +22,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
 //        let defaults = UserDefaults.standard
 //        defaults.set([String](), forKey: "TodoListArray")
+        
+        print("Realm DB Location: \(Realm.Configuration.defaultConfiguration.fileURL  )")
+        
+        
         
         return true
     }

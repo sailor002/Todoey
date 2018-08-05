@@ -7,9 +7,12 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryViewController: UITableViewController {
+    
+    //Realm Initialize
+    let realm = try! Realm()
     
     //TabeView Items
     var categoryArray = [Category]()
@@ -20,7 +23,7 @@ class CategoryViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loadItems_Core()
+        // load_Realm()
 
     }
     
@@ -31,11 +34,11 @@ class CategoryViewController: UITableViewController {
         
         let action = UIAlertAction(title: "Add Category", style: .default) { (action) in
    
-            //CORE USE:
-            let newItem = Category(context: self.context)//-> Database Object
-            newItem.name = textFld.text!
-            self.categoryArray.append(newItem)
-            self.saveItems_Core()
+            //REALM USE:
+            let newCategory = Category()//-> Realm
+            newCategory.name = textFld.text!
+            self.categoryArray.append(newCategory)
+            self.save_Realm(category: newCategory)
             
         }
         
@@ -83,10 +86,12 @@ class CategoryViewController: UITableViewController {
     }
     //**********************************
     
-    //CORE SAVE
-    func saveItems_Core(){
+    //REALM SAVE
+    func save_Realm(category: Category){
         do{
-            try context.save()
+            try realm.write {
+                realm.add(category)
+            }
         }catch{
             print("Error saving with Core Data: \(error)")
         }
@@ -94,16 +99,16 @@ class CategoryViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-    //CORE LOAD
-    func loadItems_Core(with request : NSFetchRequest<Category> = Category.fetchRequest()){
-        
-        do{
-            categoryArray = try context.fetch(request)
-        }catch{
-            print("Error loading Items with Core Data: \(error)")
-        }
-        self.tableView.reloadData()
-    }
+    //REALM LOAD
+//    func load_Realm(with request : NSFetchRequest<Category> = Category.fetchRequest()){
+//
+//        do{
+//            categoryArray = try context.fetch(request)
+//        }catch{
+//            print("Error loading Items with Core Data: \(error)")
+//        }
+//        self.tableView.reloadData()
+//    }
     
 }
 
